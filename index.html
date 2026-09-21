@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etalase Obat — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/etalase.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a href="index.html" class="brand">
+      <span class="brand__mark" aria-hidden="true">
+        <img src="logo.jpg" alt="">
+      </span>
+      <span>
+        <span class="brand__name" style="display:block;">Bintan Medika</span>
+        <span class="brand__tag" style="display:block;">APOTIK &amp; TOKO SEHAT</span>
+      </span>
+    </a>
+
+    <div class="searchbar">
+      <svg viewBox="0 0 24 24" fill="none" class="searchbar__icon"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.7"/><path d="M20 20l-3.2-3.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <input id="searchInput" type="search" placeholder="Cari obat, vitamin, alat kesehatan…" aria-label="Cari produk">
+    </div>
+
+    <div class="topbar__right">
+      <button class="iconbtn" id="cartBtn" aria-label="Keranjang belanja">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="20" r="1.2" fill="currentColor"/><circle cx="17" cy="20" r="1.2" fill="currentColor"/></svg>
+        <span class="iconbtn__badge" id="cartCount">3</span>
+      </button>
+      <a href="login.html" class="userchip">
+        <span class="avatar">AH</span>
+        <span class="userchip__meta">
+          <span class="userchip__name">Atsilah Halimatus</span>
+          <span class="userchip__role">Pembeli</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="etalase">
+
+  <nav class="chiprow" id="categoryRow" aria-label="Kategori produk">
+    <button class="chip is-active" data-cat="semua">Semua Produk</button>
+    <button class="chip" data-cat="bebas">Obat Bebas</button>
+    <button class="chip" data-cat="resep">Obat Resep</button>
+    <button class="chip" data-cat="vitamin">Vitamin &amp; Suplemen</button>
+    <button class="chip" data-cat="alat">Alat Kesehatan</button>
+    <button class="chip" data-cat="ibu">Ibu &amp; Anak</button>
+    <button class="chip" data-cat="tubuh">Perawatan Tubuh</button>
+  </nav>
+
+  <div class="etalase__head">
+    <h1 class="etalase__title">Etalase Obat</h1>
+    <span class="etalase__count" id="resultCount">128 produk tersedia</span>
+  </div>
+
+  <div class="productgrid" id="productGrid"></div>
+
+  <p class="empty-state" id="emptyState" hidden>Produk yang kamu cari tidak ditemukan. Coba kata kunci lain.</p>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/etalase.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Admin — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body>
+
+<div class="dash">
+
+  <aside class="sidebar">
+    <div class="brand brand--on-dark sidebar__brand">
+      <span class="brand__mark" aria-hidden="true">
+        <img src="logo.jpg">
+      </span>
+      <span>
+        <span class="brand__name" style="display:block;">Bintan Medika</span>
+        <span class="brand__tag" style="display:block; color:rgba(255,255,255,.55);">PANEL ADMIN</span>
+      </span>
+    </div>
+
+    <p class="sidebar__section">Menu Utama</p>
+    <nav class="sidebar__nav" id="sidebarNav">
+      <a href="dashboard.html" class="sidebar__link is-active" data-view="ringkasan">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
+        Ringkasan
+      </a>
+      <a href="#" class="sidebar__link" data-view="obat">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 3.5 15 10a4.5 4.5 0 1 1-6.36 6.36L2.5 9.7a3 3 0 0 1 4.24-4.24" stroke="currentColor" stroke-width="1.6"/></svg>
+        Data Obat
+      </a>
+      <a href="#" class="sidebar__link" data-view="supplier">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 7h18M3 7l2-4h14l2 4M3 7v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Data Supplier
+      </a>
+      <a href="#" class="sidebar__link" data-view="pesanan">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 7h12l1 13H5L6 7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6"/></svg>
+        Pesanan
+      </a>
+    </nav>
+
+    <a href="login.html" class="sidebar__user">
+      <svg viewBox="0 0 24 24" fill="none" class="sidebar__user-icon"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.6"/></svg>
+      Apt. Dewi S.
+    </a>
+  </aside>
+
+  <div class="dash__main">
+    <header class="dash__header">
+      <div>
+        <h1 class="dash__title">Ringkasan</h1>
+        <p class="dash__date" id="todayDate">Selasa, 22 Sep 2026</p>
+      </div>
+      <div class="dash__headright">
+        <button class="iconbtn" aria-label="Notifikasi">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+        <a href="login.html" class="userchip">
+          <span class="avatar">SM</span>
+          <span class="userchip__meta">
+            <span class="userchip__name">Apt. S Melka.</span>
+            <span class="userchip__role">Admin</span>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <section class="statgrid" id="statGrid"></section>
+
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">Pesanan Terbaru</h2>
+        <a href="#" class="panel__link">Lihat semua →</a>
+      </div>
+      <table class="ordertable">
+        <thead>
+          <tr>
+            <th>No. Pesanan</th>
+            <th>Pembeli</th>
+            <th>Total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="orderTableBody"></tbody>
+      </table>
+    </section>
+  </div>
+</div>
+
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  /* --- Brand green (sidebar, primary actions, hero panel) --- */
+  --green-950:#0e222e;
+  --green-900:#223964;
+  --green-800:#172adb;
+  --green-700:#070607;
+  --green-100:#e3efe8;
+
+  /* --- Gold (logo mark, highlights) --- */
+  --green-900:#223964;
+  --gold-500:#42b7db;
+  --gold-100:#f8e8c8;
+
+  /* --- Pastel tints for stat/product cards --- */
+  --tint-mint:#e4f1e9;
+  --tint-mint-ic:#bfe3cd;
+  --tint-peach:#fbeadb;
+  --tint-peach-ic:#f0c98c;
+  --tint-sand:#faece9;
+  --tint-sand-ic:#eab6ac;
+  --tint-lilac:#eceaf8;
+  --tint-lilac-ic:#c7c1ec;
+  --tint-sky:#e7ebfa;
+  --tint-rose:#fbe9ea;
+
+  /* --- Status badges --- */
+  --status-new-bg:#f8e5c3; --status-new-fg:#8a5a17;
+  --status-progress-bg:#dbe6fb; --status-progress-fg:#2e50a3;
+  --status-done-bg:#dcefe0; --status-done-fg:#1f7a44;
+
+  /* --- Neutrals --- */
+  --bg-app:#f2f4f1;
+  --bg-card:#ffffff;
+  --green-900:#223964;
+  --ink-700:#3c4a43;
+  --ink-500:#6b7972;
+  --ink-300:#9fada6;
+  --line:#e6e9e5;
+
+  --radius-lg:18px;
+  --radius-md:12px;
+  --radius-sm:8px;
+  --shadow-card:0 1px 2px rgba(15, 14, 68, 0.04), 0 8px 24px -12px rgba(18,58,44,0.12);
+
+  --font-display:'Fraunces', Georgia, serif;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--ink-900);
+  background:var(--bg-app);
+  -webkit-font-smoothing:antialiased;
+}
+img{ max-width:100%; display:block; }
+button{ font-family:inherit; cursor:pointer; }
+a{ color:inherit; text-decoration:none; }
+input{ font-family:inherit; }
+
+:focus-visible{
+  outline:2px solid var(--green-700);
+  outline-offset:2px;
+}
+
+.visually-hidden{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* --- Shared brand mark --- */
+.brand{
+  display:flex; align-items:center; gap:10px;
+}
+.brand__mark{
+  width:34px; height:34px; border-radius:10px;
+  background:var(--gold-500);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--green-950); flex-shrink:0;
+}
+.brand__mark svg{ width:18px; height:18px; }
+.brand__name{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:17px;
+  line-height:1.1;
+  color:inherit;
+}
+.brand__tag{
+  font-size:10px;
+  letter-spacing:.06em;
+  color:var(--ink-300);
+  margin-top:2px;
+}
+
+/* --- Generic buttons --- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:none; border-radius:999px;
+  padding:11px 20px;
+  font-size:14px; font-weight:600;
+  transition:transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.btn:active{ transform:scale(.98); }
+.btn-primary{
+  background:var(--green-900); color:#fff;
+}
+.btn-primary:hover{ background:var(--green-800); }
+.btn-ghost{
+  background:transparent; color:var(--green-900);
+  border:1px solid var(--line);
+}
+.btn-ghost:hover{ border-color:var(--green-700); }
+.btn-sm{ padding:7px 14px; font-size:13px; border-radius:8px; }
+
+/* --- Icon button (bell, cart) --- */
+.iconbtn{
+  position:relative; background:none; border:none;
+  width:38px; height:38px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--ink-700);
+}
+.iconbtn:hover{ 
+  background:var(--bg-app); 
+}
+
+.iconbtn svg{ 
+  width:20px; 
+  height:20px; 
+}
+
+/* --- User chip (avatar + name/role, used in header bars) --- */
+.userchip{ 
+  display:flex; 
+  align-items:center; 
+  gap:10px; 
+}
+
+.userchip__meta{ 
+  display:flex; 
+  flex-direction:column; 
+  line-height:1.25; 
+}
+
+.userchip__name{ 
+  font-size:13.5px; 
+  font-weight:600; 
+  color:var(--ink-900); 
+}
+
+.userchip__role{ 
+  font-size:11.5px; 
+  color:#223964; 
+}
+
+.avatar{
+  width:36px; 
+  height:36px; 
+  border-radius:999px;
+  background:#ccdaf7; 
+  color:#223964;
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+  font-weight:700; 
+  font-size:13px; 
+  flex-shrink:0;
+}
+
+/* --- Tint utility backgrounds (product media, stat icons) --- */
+.tint-mint{ background:var(--tint-mint); color:#2f7a52; }
+.tint-peach{ background:var(--tint-peach); color:#b5822b; }
+.tint-sand{ background:var(--tint-sand); color:#b3654f; }
+.tint-lilac{ background:var(--tint-lilac); color:#5f57a8; }
+.tint-sky{ background:var(--tint-sky); color:#3d5bb0; }
+
+/* --- Toast (used across pages for cart/login feedback) --- */
+.toast{
+  position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px);
+  background:var(--green-950); color:#fff;
+  padding:12px 20px; border-radius:999px;
+  font-size:13.5px; font-weight:500;
+  box-shadow:0 12px 30px -8px rgba(0,0,0,.35);
+  opacity:0; pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
+  z-index:999;
+  display:flex; align-items:center; gap:8px;
+}
+.toast.is-visible{
+  opacity:1; transform:translate(-50%,0);
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk / Daftar — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/login.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-shell">
+
+  <!-- Django note: static copy/checklist below; only the address
+       at the bottom would come from a Site/Toko model. -->
+  <section class="auth-hero">
+    <div class="brand brand--on-dark">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2c-3 3-7 6-7 11a7 7 0 0 0 14 0c0-5-4-8-7-11Z" stroke="currentColor" stroke-width="1.6"/></svg>
+      </span>
+      <span class="brand__name">Bintan Medika</span>
+    </div>
+
+    <h1 class="auth-hero__title">Sehat itu urusan<br>sehari-hari.</h1>
+    <p class="auth-hero__sub">Masuk untuk pesan obat, pantau stok, atau kelola apotik — semua dalam satu tempat.</p>
+
+    <ul class="auth-hero__list">
+      <li>Stok obat selalu diperbarui apoteker</li>
+      <li>Pesan tanpa antre, ambil di apotik</li>
+      <li>Riwayat pesanan tersimpan rapi</li>
+    </ul>
+
+    <p class="auth-hero__address">Jl. Contoh No. 12, Tanjungpinang, Kepulauan Riau</p>
+    <span class="auth-hero__blob auth-hero__blob--1" aria-hidden="true"></span>
+    <span class="auth-hero__blob auth-hero__blob--2" aria-hidden="true"></span>
+  </section>
+
+  <section class="auth-form">
+
+    <!-- Django note: this toggle simply swaps which form partial is
+         shown; both post to the same LoginView but with a hidden
+         "role" field, or to two separate url()s if you prefer. -->
+    <div class="roletoggle" role="tablist" aria-label="Masuk sebagai">
+      <button class="roletoggle__btn is-active" data-role="pembeli" role="tab" aria-selected="true">Pembeli</button>
+      <button class="roletoggle__btn" data-role="admin" role="tab" aria-selected="false">Admin</button>
+    </div>
+
+    <div class="authtabs" role="tablist" aria-label="Masuk atau daftar">
+      <button class="authtabs__btn is-active" data-tab="masuk" role="tab" aria-selected="true">Masuk</button>
+      <button class="authtabs__btn" data-tab="daftar" role="tab" aria-selected="false">Daftar Akun Baru</button>
+    </div>
+
+    <!-- ---------- MASUK ---------- -->
+    <form id="formMasuk" class="authform" novalidate>
+      <label class="field">
+        <span class="field__label">Email atau No. HP</span>
+        <input type="text" name="identifier" placeholder="nama@email.com" required>
+      </label>
+      <label class="field">
+        <span class="field__label">Kata Sandi</span>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </label>
+      <div class="field-row">
+        <label class="checkbox">
+          <input type="checkbox" name="remember">
+          <span>Ingat saya</span>
+        </label>
+        <a href="#" class="link">Lupa kata sandi?</a>
+      </div>
+      <button type="submit" class="btn btn-primary auth-submit" id="submitMasuk">Masuk sebagai Pembeli</button>
+      <p class="authform__hint">
+        Belum punya akun?
+        <a href="#" class="link link--strong" data-goto="daftar">Daftar di sini</a>
+        — setelah masuk kamu akan diarahkan ke Etalase Obat
+      </p>
+    </form>
+
+    <!-- ---------- DAFTAR ---------- -->
+    <form id="formDaftar" class="authform" novalidate hidden>
+      <label class="field">
+        <span class="field__label">Nama Lengkap</span>
+        <input type="text" name="name" placeholder="Nama kamu" required>
+      </label>
+      <label class="field">
+        <span class="field__label">Email atau No. HP</span>
+        <input type="text" name="identifier" placeholder="nama@email.com" required>
+      </label>
+      <label class="field">
+        <span class="field__label">Kata Sandi</span>
+        <input type="password" name="password" placeholder="Minimal 8 karakter" required minlength="8">
+      </label>
+      <button type="submit" class="btn btn-primary auth-submit" id="submitDaftar">Daftar sebagai Pembeli</button>
+      <p class="authform__hint">
+        Sudah punya akun?
+        <a href="#" class="link link--strong" data-goto="masuk">Masuk di sini</a>
+      </p>
+    </form>
+
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+.dash{ display:flex; min-height:100vh; }
+
+/* ---------------- Sidebar ---------------- */
+.sidebar{
+  width:250px; flex-shrink:0;
+  background:#223964;;
+  color:rgba(255,255,255,.82);
+  display:flex; flex-direction:column;
+  padding:26px 18px;
+  position:sticky; top:0; height:100vh;
+}
+.sidebar__brand{ padding:0 8px; margin-bottom:30px; }
+.sidebar__brand .brand__mark{ color:var(--green-950); }
+.sidebar__section{
+  font-size:10.5px; font-weight:700; letter-spacing:.06em;
+  color:rgba(255,255,255,.4);
+  padding:0 8px; margin:0 0 10px;
+}
+.sidebar__nav{ display:flex; flex-direction:column; gap:2px; }
+.sidebar__link{
+  display:flex; align-items:center; gap:12px;
+  padding:11px 12px; border-radius:10px;
+  font-size:13.5px; font-weight:500;
+  color:rgba(255,255,255,.75);
+  transition:background-color .15s ease, color .15s ease;
+}
+.sidebar__link svg{ width:17px; height:17px; flex-shrink:0; }
+.sidebar__link:hover{ background:rgba(255,255,255,.06); color:#fff; }
+.sidebar__link.is-active{
+  background:#fff; color:var(--green-950); font-weight:700;
+  box-shadow:0 6px 16px -6px rgba(0,0,0,.3);
+}
+.sidebar__user{
+  margin-top:auto;
+  display:flex; align-items:center; gap:10px;
+  padding:14px 12px 4px;
+  border-top:1px solid rgba(255,255,255,.1);
+  font-size:13px; font-weight:600; color:#fff;
+}
+.sidebar__user-icon{ width:20px; height:20px; opacity:.85; }
+
+/* ---------------- Main ---------------- */
+.dash__main{ flex:1; padding:30px 36px 60px; min-width:0; }
+.dash__header{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:26px; }
+.dash__title{ font-family:var(--font-display); font-weight:600; font-size:26px; margin:0 0 4px; }
+.dash__date{ font-size:13px; color:var(--ink-500); margin:0; }
+.dash__headright{ display:flex; align-items:center; gap:16px; }
+
+/* ---------------- Stat cards ---------------- */
+.statgrid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:18px;
+  margin-bottom:24px;
+}
+.statcard{
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius-lg);
+  padding:18px 20px;
+}
+.statcard__icon{
+  width:36px; height:36px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:14px;
+}
+.statcard__icon svg{ width:17px; height:17px; }
+.statcard__value{ font-family:var(--font-display); font-weight:700; font-size:26px; line-height:1; margin-bottom:6px; }
+.statcard__label{ font-size:12.5px; color:var(--ink-500); }
+
+/* ---------------- Panel / table ---------------- */
+.panel{ background:#fff; border:1px solid var(--line); border-radius:var(--radius-lg); padding:22px 24px 8px; }
+.panel__head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.panel__title{ font-size:16px; font-weight:700; margin:0; }
+.panel__link{ font-size:13px; font-weight:600; color:var(--green-800); }
+.panel__link:hover{ text-decoration:underline; }
+
+.ordertable{ 
+  width:100%; 
+  border-collapse:collapse; 
+}
+.ordertable th{
+  text-align:left; font-size:11px; font-weight:700; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--ink-500);
+  padding:10px 8px; border-bottom:1px solid var(--line);
+}
+.ordertable td{
+  padding:14px 8px; font-size:13.5px; color:var(--ink-900);
+  border-bottom:1px solid var(--line);
+}
+.ordertable tr:last-child td{ border-bottom:none; }
+
+.badge{
+  display:inline-flex; align-items:center;
+  padding:4px 11px; border-radius:999px;
+  font-size:11.5px; font-weight:700;
+}
+.badge--new{ background:var(--status-new-bg); color:var(--status-new-fg); }
+.badge--progress{ background:var(--status-progress-bg); color:var(--status-progress-fg); }
+.badge--done{ background:var(--status-done-bg); color:var(--status-done-fg); }
+
+@media (max-width: 1080px){
+  .statgrid{ grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width: 900px){
+  .sidebar{ position:fixed; left:0; top:0; z-index:30; transform:translateX(-100%); transition:transform .2s ease; }
+  .sidebar.is-open{ transform:translateX(0); }
+  .dash__main{ padding:20px; }
+  .ordertable{ display:block; overflow-x:auto; }
+}
+@media (max-width: 560px){
+  .statgrid{ grid-template-columns:1fr 1fr; gap:12px; }
+  .dash__title{ font-size:21px; }
+}
