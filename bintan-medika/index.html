@@ -6,43 +6,87 @@
 <title>Etalase Obat — Bintan Medika</title>
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="stylesheet" href="assets/css/etalase.css">
+<style>.navlink{font-size:.82rem;font-weight:600;color:var(--blue);padding:.3rem .7rem;border-radius:99px;white-space:nowrap}.navlink:hover{background:var(--mist)}</style>
 </head>
 <body>
 
+<div class="infobar"><span>Apoteker online setiap hari, 08.00–22.00</span><span>Pesan antar: (0770) 123-456</span></div>
 <header class="topbar">
   <div class="topbar__inner">
-    <a href="index.html" class="brand">
-      <span class="brand__mark" aria-hidden="true">
-        <img src="logo.jpg">
-      </span>
+    <a href="index.html" class="brand navpill navpill--brand">
+      <span class="brand__mark" aria-hidden="true"><img src="assets/img/logo.png" alt=""></span>
       <span>
         <span class="brand__name" style="display:block;">Bintan Medika</span>
         <span class="brand__tag" style="display:block;">APOTIK &amp; TOKO SEHAT</span>
       </span>
     </a>
 
-    <div class="searchbar">
-      <svg viewBox="0 0 24 24" fill="none" class="searchbar__icon"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.7"/><path d="M20 20l-3.2-3.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-      <input id="searchInput" type="search" placeholder="Cari obat, vitamin, alat kesehatan…" aria-label="Cari produk">
+    <div class="navcenter navpill">
+      <label class="seg seg--search">
+        <svg viewBox="0 0 24 24" fill="none" class="seg__icon"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.7"/><path d="M20 20l-3.2-3.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span><span class="seg__label">Cari produk</span>
+        <input id="searchInput" type="search" placeholder="Obat, vitamin, alat kesehatan" aria-label="Cari produk"></span>
+      </label>
+      <div class="seg">
+        <span class="seg__label">Kategori</span>
+        <select id="catSelect" aria-label="Kategori">
+          <option value="semua">Semua produk</option><option value="bebas">Obat bebas</option><option value="resep">Obat resep</option>
+          <option value="vitamin">Vitamin &amp; suplemen</option><option value="alat">Alat kesehatan</option><option value="ibu">Ibu &amp; anak</option><option value="tubuh">Perawatan tubuh</option>
+        </select>
+      </div>
+      <div class="seg">
+        <span class="seg__label">Harga maksimal</span>
+        <select id="priceSelect" aria-label="Harga maksimal">
+          <option value="0">Semua harga</option><option value="25000">Di bawah Rp 25.000</option><option value="50000">Di bawah Rp 50.000</option><option value="100000">Di bawah Rp 100.000</option><option value="300000">Di bawah Rp 300.000</option>
+        </select>
+      </div>
     </div>
 
-    <div class="topbar__right">
+    <div class="topbar__right navpill">
       <button class="iconbtn" id="cartBtn" aria-label="Keranjang belanja">
         <svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="20" r="1.2" fill="currentColor"/><circle cx="17" cy="20" r="1.2" fill="currentColor"/></svg>
-        <span class="iconbtn__badge" id="cartCount">3</span>
+        <span class="iconbtn__badge" id="cartCount">0</span>
       </button>
-      <a href="login.html" class="userchip">
-        <span class="avatar">AH</span>
+      <a href="riwayat.html" class="userchip" title="Riwayat pesanan">
+        <img src="assets/img/profil.jpg" alt="">
         <span class="userchip__meta">
-          <span class="userchip__name">Atsilah Halimatus</span>
+          <span class="userchip__name" id="uName">Atsilah Halimatus</span>
           <span class="userchip__role">Pembeli</span>
         </span>
       </a>
+      <a href="login.html" class="navlink" id="logout">Keluar</a>
     </div>
   </div>
 </header>
 
 <main class="etalase">
+
+  <div class="etalase__hero">
+    <span class="hero__mark" aria-hidden="true">BINTAN MEDIKA</span>
+    <div class="etalase__hero-text">
+      <span class="badge badge--new">Pemesanan Praktis</span>
+      <h2>Kebutuhan Obat &amp; Resep Dokter Siap Diantar</h2>
+      <p>Cari obat resmi bersertifikat BPOM dengan pengawasan langsung apoteker berlisensi.</p>
+      <div class="hero__cta"><a href="#productGrid" class="btn btn-primary">Lihat etalase</a><a href="#" class="btn btn-ghost" data-resep>Unggah resep</a></div>
+    </div>
+    <div class="etalase__hero-img">
+      <img src="assets/img/keranjang.jpg" alt="Keranjang Obat">
+                   
+      <div class="glass glass--a">
+        
+        <span class="foto-slot" style="background-image:url('assets/img/apoteker-foto.jpg')"></span>
+        <span><strong>Apt. S Melka</strong><small>Apoteker penanggung jawab</small></span>
+      </div>
+      <div class="glass glass--b"><strong>100% BPOM</strong><small>Obat resmi &amp; terjamin</small></div>
+    </div>
+  </div>
+
+  <section class="features">
+    <div class="feature"><span class="feature__ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6"/></svg></span><span><strong>Obat resmi BPOM</strong><small>Semua produk terdaftar dan terjamin keasliannya.</small></span></div>
+    <div class="feature"><span class="feature__ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/><path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.6"/></svg></span><span><strong>Apoteker berlisensi</strong><small>Resep dan dosis diperiksa langsung apoteker.</small></span></div>
+    <div class="feature"><span class="feature__ic"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h11v10H3zM14 10h4l3 3v3h-7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.6" stroke="currentColor" stroke-width="1.4"/><circle cx="17" cy="17.5" r="1.6" stroke="currentColor" stroke-width="1.4"/></svg></span><span><strong>Antar ke rumah</strong><small>Pesanan dikirim cepat ke seluruh area Bintan.</small></span></div>
+    <div class="feature"><span class="feature__ic"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="1.6"/></svg></span><span><strong>Resep digital</strong><small>Unggah resep dokter tanpa perlu antre.</small></span></div>
+  </section>
 
   <nav class="chiprow" id="categoryRow" aria-label="Kategori produk">
     <button class="chip is-active" data-cat="semua">Semua Produk</button>
@@ -64,8 +108,15 @@
   <p class="empty-state" id="emptyState" hidden>Produk yang kamu cari tidak ditemukan. Coba kata kunci lain.</p>
 </main>
 
+<section class="cta">
+  <div><h3>Punya resep dokter?</h3><p>Unggah resepnya, apoteker kami siapkan obatnya.</p></div>
+  <a href="#" class="btn btn-ghost" data-resep>Unggah resep</a>
+</section>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="assets/js/bm.js"></script>
+<script src="assets/js/dropdown.js"></script>
 <script src="assets/js/etalase.js"></script>
 </body>
 </html>

@@ -1,114 +1,29 @@
-/* ============================================================
-   Etalase Obat — front-end logic.
-   Everything in PRODUCTS below is a stand-in for data that will
-   later come from Django, e.g.:
-     {{ produk_list|json_script:"produk-data" }}
-   and this file would read it with:
-     const PRODUCTS = JSON.parse(document.getElementById('produk-data').textContent);
-   The rendering, filtering and cart logic below stays the same
-   either way — only where PRODUCTS comes from changes.
-   ============================================================ */
-
-const ICONS = {
-  bebas:   '<path d="M8.5 3.5 15 10a4.5 4.5 0 1 1-6.36 6.36L2.5 9.7a3 3 0 0 1 4.24-4.24" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 6.5 15.5 11" stroke="currentColor" stroke-width="1.5"/>',
-  vitamin: '<path d="M12 3v4M12 17v4M4 12h4M16 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="5.2" stroke="currentColor" stroke-width="1.6" fill="none"/>',
-  resep:   '<rect x="4" y="3.5" width="16" height="17" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
-  alat:    '<path d="M8 6h8v4a4 4 0 1 1-8 0V6Z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M12 14v3M9 20h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
-  ibu:     '<path d="M12 21s-7-4.4-7-10a4.5 4.5 0 0 1 7-3.7A4.5 4.5 0 0 1 19 11c0 5.6-7 10-7 10Z" stroke="currentColor" stroke-width="1.5" fill="none"/>',
-  tubuh:   '<path d="M12 2c-3 3-7 6-7 11a7 7 0 0 0 14 0c0-5-4-8-7-11Z" stroke="currentColor" stroke-width="1.5" fill="none"/>',
-};
-
-const TINTS = ['tint-mint', 'tint-peach', 'tint-sky', 'tint-sand', 'tint-lilac'];
-
-const PRODUCTS = [
-  { id: 1, cat: 'bebas',   catLabel: 'Obat Bebas',        name: 'Paracetamol 500mg',   unit: 'Strip · 10 tablet', price: 8500,  stock: 240 },
-  { id: 2, cat: 'vitamin', catLabel: 'Vitamin & Suplemen', name: 'Vitamin C 1000mg',    unit: 'Botol · 30 tablet', price: 45000, stock: 86  },
-  { id: 3, cat: 'bebas',   catLabel: 'Obat Bebas',        name: 'Tolak Angin Cair',     unit: 'Box · 12 sachet',   price: 22000, stock: 150 },
-  { id: 4, cat: 'alat',    catLabel: 'Alat Kesehatan',    name: 'Masker Medis 3-Ply',   unit: 'Box · 50 pcs',      price: 35000, stock: 60  },
-  { id: 5, cat: 'bebas',   catLabel: 'Obat Bebas',        name: 'Antasida Tablet Kunyah', unit: 'Strip · 10 tablet', price: 9500, stock: 40 },
-  { id: 6, cat: 'vitamin', catLabel: 'Vitamin & Suplemen', name: 'Minyak Ikan Omega-3',  unit: 'Botol · 60 kapsul', price: 68000, stock: 120 },
-  { id: 7, cat: 'resep',   catLabel: 'Obat Resep',        name: 'Amoxicillin 500mg',    unit: 'Strip · 10 kapsul', price: 18000, stock: 24  },
-  { id: 8, cat: 'ibu',     catLabel: 'Ibu & Anak',        name: 'Minyak Telon Bayi',    unit: 'Botol · 60ml',      price: 21000, stock: 75  },
-];
-
-const state = { category: 'semua', query: '', cartCount: 3 };
-
-const grid = document.getElementById('productGrid');
-const emptyState = document.getElementById('emptyState');
-const resultCount = document.getElementById('resultCount');
-const toast = document.getElementById('toast');
-const cartCountEl = document.getElementById('cartCount');
-
-function formatRupiah(n) {
-  return 'Rp' + n.toLocaleString('id-ID');
+// Django note: ganti array PRODUCTS dengan JSON.parse(document.getElementById('produk-data').textContent)
+const KEY={'Obat bebas':'bebas','Obat resep':'resep','Vitamin & suplemen':'vitamin','Alat kesehatan':'alat','Ibu & anak':'ibu','Perawatan tubuh':'tubuh'};
+const PRODUCTS=BM.obat().map(o=>({id:o.id,name:o.nama,price:o.harga,stock:o.stok,cat:KEY[o.kategori]||'bebas',rx:o.resep?1:0}));
+const CATS={bebas:['Obat bebas','#e4edff','#0f4bb5'],resep:['Obat resep','#fde9eb','#d9343f'],vitamin:['Vitamin & suplemen','#fdeef0','#e0525b'],alat:['Alat kesehatan','#dfe9fb','#0b2a6b'],ibu:['Ibu & anak','#eaf3ff','#4f86e8'],tubuh:['Perawatan tubuh','#edf1f8','#3a62b8']};
+const ICON='<svg viewBox="0 0 24 24" fill="none"><path d="M8.5 3.5 15 10a4.5 4.5 0 1 1-6.36 6.36L2.5 9.7a3 3 0 0 1 4.24-4.24" stroke="currentColor" stroke-width="1.4"/><path d="M8.6 8.6l6.8 6.8" stroke="currentColor" stroke-width="1.4"/></svg>';
+const rp=n=>'Rp '+n.toLocaleString('id-ID');
+const $=id=>document.getElementById(id);
+let cat='semua',q='',maxP=Infinity;$('cartCount').textContent=BM.cartCount();
+function render(){
+  const list=PRODUCTS.filter(p=>(cat==='semua'||p.cat===cat)&&p.price<=maxP&&p.name.toLowerCase().includes(q));
+  $('productGrid').innerHTML=list.map(p=>`<article class="card"><div class="card__thumb" style="background:${CATS[p.cat][1]};color:${CATS[p.cat][2]}">${ICON}${p.rx?'<span class="card__rx">Resep dokter</span>':''}</div><div class="card__body"><span class="card__cat">${CATS[p.cat][0]}</span><h3 class="card__name">${p.name}</h3><span class="card__stock">Stok ${p.stock}</span><div class="card__foot"><span class="card__price">${rp(p.price)}</span><button class="btn btn-primary" data-id="${p.id}">+ Keranjang</button></div><div class="card__bar${p.stock<20?' is-low':''}" title="Stok ${p.stock}"><i style="width:${Math.min(100,p.stock)}%"></i></div></div></article>`).join('');
+  $('resultCount').textContent=list.length+' produk tersedia';$('emptyState').hidden=list.length>0;
 }
-
-function render() {
-  const query = state.query.trim().toLowerCase();
-  const filtered = PRODUCTS.filter(p => {
-    const matchesCat = state.category === 'semua' || p.cat === state.category;
-    const matchesQuery = !query || p.name.toLowerCase().includes(query);
-    return matchesCat && matchesQuery;
-  });
-
-  grid.innerHTML = filtered.map((p, i) => `
-    <article class="card-product">
-      <div class="card-product__media ${TINTS[i % TINTS.length]}">
-        <span class="card-product__stock">Stok: ${p.stock}</span>
-        <svg viewBox="0 0 24 24" fill="none">${ICONS[p.cat] || ICONS.bebas}</svg>
-      </div>
-      <div class="card-product__body">
-        <span class="card-product__cat">${p.catLabel}</span>
-        <h3 class="card-product__name">${p.name}</h3>
-        <span class="card-product__unit">${p.unit}</span>
-        <div class="card-product__footer">
-          <span class="card-product__price">${formatRupiah(p.price)}</span>
-          <button class="addbtn" data-id="${p.id}" data-name="${p.name}">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-            Keranjang
-          </button>
-        </div>
-      </div>
-    </article>
-  `).join('');
-
-  emptyState.hidden = filtered.length !== 0;
-  resultCount.textContent = `${filtered.length} produk tersedia`;
-}
-
-function showToast(message) {
-  toast.textContent = message;
-  toast.classList.add('is-visible');
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => toast.classList.remove('is-visible'), 1800);
-}
-
-document.getElementById('categoryRow').addEventListener('click', (e) => {
-  const chip = e.target.closest('.chip');
-  if (!chip) return;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
-  chip.classList.add('is-active');
-  state.category = chip.dataset.cat;
-  render();
-});
-
-document.getElementById('searchInput').addEventListener('input', (e) => {
-  state.query = e.target.value;
-  render();
-});
-
-grid.addEventListener('click', (e) => {
-  const btn = e.target.closest('.addbtn');
-  if (!btn) return;
-  state.cartCount += 1;
-  cartCountEl.textContent = state.cartCount;
-  showToast(`${btn.dataset.name} ditambahkan ke keranjang`);
-  // Django note: this is where a fetch('/keranjang/tambah/', {method:'POST', body:...})
-  // call would go, posting product id + qty to a CartItemCreateView.
-});
-
-document.getElementById('cartBtn').addEventListener('click', () => {
-  showToast('Membuka keranjang…');
-});
-
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('is-show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('is-show'),2000)}
+$('categoryRow').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('is-active',c===b));cat=b.dataset.cat;$('catSelect').value=cat;$('catSelect').dispatchEvent(new Event('sync'));render()});
+$('searchInput').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();render()});
+$('productGrid').addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(!b)return;
+  // Django note: fetch('/keranjang/tambah/', {method:'POST', ...}) di sini
+  const id=+b.dataset.id,p=PRODUCTS.find(x=>x.id===id),c=BM.cart(),it=c.find(x=>x.id===id);
+  if((it?it.qty:0)>=p.stock){toast('Stok '+p.name+' tidak cukup');return}
+  it?it.qty++:c.push({id,qty:1});BM.set('bm_cart',c);$('cartCount').textContent=BM.cartCount();toast(p.name+' masuk keranjang')});
 render();
+
+$('catSelect').addEventListener('change',e=>{cat=e.target.value;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('is-active',c.dataset.cat===cat));render()});
+$('priceSelect').addEventListener('change',e=>{maxP=+e.target.value||Infinity;render()});
+
+$('cartBtn').onclick=()=>location.href='keranjang.html';
+$('uName').textContent=BM.user().name;
+document.querySelectorAll('[data-resep]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();cat='resep';$('catSelect').value='resep';$('catSelect').dispatchEvent(new Event('sync'));document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('is-active',c.dataset.cat==='resep'));render();$('productGrid').scrollIntoView({behavior:'smooth'});toast('Pilih obat resep, resep diunggah saat checkout')}));

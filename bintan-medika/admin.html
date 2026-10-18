@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelola Apotik — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/dashboard.css"><link rel="stylesheet" href="assets/css/app.css"></head>
+<body><div class="dash">
+<aside class="sidebar">
+<div class="brand brand--on-dark sidebar__brand"><span class="brand__mark"><img src="assets/img/logo.png" alt=""></span><span><span class="brand__name" style="display:block">Bintan Medika</span><span class="brand__tag" style="display:block;color:rgba(255,255,255,.55)">PANEL ADMIN</span></span></div>
+<p class="sidebar__section">Menu Utama</p>
+<nav class="sidebar__nav" id="nav">
+<a href="dashboard.html" class="sidebar__link">Ringkasan</a>
+<a href="#obat" class="sidebar__link" data-v="obat">Data Obat</a>
+<a href="#supplier" class="sidebar__link" data-v="supplier">Data Supplier</a>
+<a href="#pesanan" class="sidebar__link" data-v="pesanan">Pesanan</a></nav>
+<a href="login.html" class="logout" id="logout">⎋ Keluar</a>
+</aside>
+<div class="dash__main">
+<header class="dash__header"><h1 class="dash__title" id="ttl"></h1>
+<div class="notif"><button class="iconbtn" id="bell" aria-label="Notifikasi"><svg viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z" stroke="currentColor" stroke-width="1.6"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.6"/></svg><span class="iconbtn__badge" id="bc"></span></button><div class="notif__list" id="nl"></div></div></header>
+<section class="panel" id="view"></section>
+</div></div>
+
+<div class="modal" id="m"><div class="modal__box"><h3 id="mt"></h3><div id="mb"></div><div class="modal__act" id="ma"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="assets/js/bm.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const CFG={
+obat:{t:'Data Obat',key:'bm_obat',get:()=>BM.obat(),f:[['nama','Nama obat'],['kategori','Kategori','select',['Obat bebas','Obat resep','Vitamin & suplemen','Alat kesehatan','Ibu & anak','Perawatan tubuh']],['harga','Harga (Rp)','number'],['stok','Stok','number'],['exp','Kadaluarsa','date'],['supplier','Supplier','select',()=>BM.supplier().map(s=>s.nama)]],
+ cols:['Nama','Kategori','Harga','Stok','Kadaluarsa'],row:o=>[o.nama+(o.resep?' <span class="tag">Resep</span>':''),o.kategori,BM.rp(o.harga),o.stok<=10?`<span class="pill pill--wait">${o.stok}</span>`:o.stok,o.exp]},
+supplier:{t:'Data Supplier',key:'bm_supplier',get:()=>BM.supplier(),f:[['nama','Nama supplier'],['kontak','Kontak'],['alamat','Alamat']],cols:['Nama','Kontak','Alamat'],row:s=>[s.nama,s.kontak,s.alamat]}};
+function view(){const v=(location.hash||'#obat').slice(1);document.querySelectorAll('[data-v]').forEach(a=>a.classList.toggle('is-active',a.dataset.v===v));
+ const a=BM.alerts();$('bc').textContent=a.length;$('bc').hidden=!a.length;$('nl').innerHTML=a.length?a.map(x=>`<p>${BM.esc(x)}</p>`).join(''):'<p>Tidak ada peringatan.</p>';
+ v==='pesanan'?pesanan():crud(v in CFG?v:'obat')}
+function crud(v){const c=CFG[v],d=c.get();$('ttl').textContent=c.t;
+ const al=v==='obat'?BM.alerts():[];
+ $('view').innerHTML=(al.length?`<div class="alertbox"><strong>${al.length} peringatan:</strong> ${al.map(BM.esc).join(' · ')}</div>`:'')+
+ `<div class="panel__head"><h2 class="panel__title">Daftar</h2><button class="btn btn-primary btn-sm" id="add">+ Tambah</button></div>
+ <div style="overflow-x:auto"><table class="ordertable"><thead><tr>${c.cols.map(x=>`<th>${x}</th>`).join('')}<th>Aksi</th></tr></thead><tbody>${d.map(r=>`<tr>${c.row(r).map(x=>`<td>${x}</td>`).join('')}<td class="acts"><button class="btn btn-ghost btn-sm" data-e="${r.id}">Edit</button><button class="btn btn-bad btn-sm" data-x="${r.id}">Hapus</button></td></tr>`).join('')}</tbody></table></div>`;
+ $('add').onclick=()=>form(v);
+ $('view').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.e)form(v,+b.dataset.e);if(b.dataset.x&&confirm('Hapus data ini?')){BM.set(c.key,d.filter(r=>r.id!==+b.dataset.x));BM.toast('Dihapus');view()}}}
+function openM(t,body,acts){$('mt').textContent=t;$('mb').innerHTML=body;$('ma').innerHTML='';acts.forEach(([l,cls,fn])=>{const b=document.createElement('button');b.className='btn '+cls;b.textContent=l;b.onclick=fn;$('ma').append(b)});$('m').classList.add('is-open')}
+const closeM=()=>$('m').classList.remove('is-open');
+function form(v,id){const c=CFG[v],d=c.get(),r=id?d.find(x=>x.id===id):{};
+ openM((id?'Edit ':'Tambah ')+c.t,c.f.map(([k,l,t,opt])=>`<label class="field"><span class="field__label">${l}</span>${t==='select'?`<select name="${k}">${(typeof opt==='function'?opt():opt).map(o=>`<option ${r[k]===o?'selected':''}>${BM.esc(o)}</option>`).join('')}</select>`:`<input name="${k}" type="${t||'text'}" value="${BM.esc(r[k]??'')}">`}</label>`).join(''),
+ [['Batal','btn-ghost',closeM],['Simpan','btn-primary',()=>{const n=id?r:{id:Date.now()};let ok=true;
+  c.f.forEach(([k,,t])=>{const x=document.querySelector(`#mb [name=${k}]`).value.trim();if(!x)ok=false;n[k]=t==='number'?+x:x});
+  if(!ok)return BM.toast('Lengkapi semua kolom');if(v==='obat')n.resep=n.kategori==='Obat resep';
+  if(!id)d.push(n);BM.set(c.key,d);closeM();BM.toast('Tersimpan');view()}]])}
+const NEXT={Diproses:'Dikirim',Dikirim:'Selesai'};
+function pesanan(){$('ttl').textContent='Pesanan Masuk';const o=BM.orders();
+ $('view').innerHTML=`<div style="overflow-x:auto"><table class="ordertable"><thead><tr><th>No.</th><th>Pembeli</th><th>Total</th><th>Pembayaran</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${o.map((x,i)=>`<tr><td>${x.no}</td><td>${BM.esc(x.pembeli)}</td><td>${BM.rp(x.total)}</td><td>${x.bayar}${x.kode?`<br><small>${x.kode}</small>`:''}</td><td>${BM.pill(x.status)}</td><td class="acts">${x.status==='Menunggu Verifikasi'?`<button class="btn btn-primary btn-sm" data-v="${i}">Verifikasi Resep</button>`:NEXT[x.status]?`<button class="btn btn-ghost btn-sm" data-n="${i}">Tandai ${NEXT[x.status]}</button>`:'—'}${x.metode==='COD'&&!/Lunas/.test(x.bayar)&&NEXT[x.status]?`<button class="btn btn-primary btn-sm" data-b="${i}">Terima Bayaran</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+ $('view').onclick=e=>{const b=e.target.closest('button');if(!b)return;const L=BM.orders();
+  if(b.dataset.n){const x=L[+b.dataset.n];x.status=NEXT[x.status];if(x.status==='Selesai')x.bayar='COD - Lunas';BM.set('bm_orders',L);BM.toast('Status diperbarui');view()}
+  if(b.dataset.v)verif(+b.dataset.v);
+  if(b.dataset.b){L[+b.dataset.b].bayar='COD - Lunas';BM.set('bm_orders',L);BM.toast('Pembayaran dicatat');view()}}}
+function verif(i){const L=BM.orders(),x=L[i],r=x.resep;
+ const set=(s)=>()=>{x.status=s;if(s==='Ditolak'){const ob=BM.obat();x.items.forEach(it=>{const o=ob.find(z=>z.id===it.id);if(o)o.stok+=it.qty});BM.set('bm_obat',ob)}BM.set('bm_orders',L);closeM();BM.toast('Resep '+(s==='Ditolak'?'ditolak, stok dikembalikan':'disetujui'));view()};
+ openM('Verifikasi Resep '+x.no,`<p><strong>${BM.esc(x.pembeli)}</strong><br><small>${x.items.map(t=>BM.esc(t.nama)+' ×'+t.qty).join(', ')}</small></p>`+(r&&r.data?`<img class="preview" src="${r.data}" alt="Resep">`:`<div class="noimg">${r?BM.esc(r.name):'Tidak ada file'}<br><small>(pratinjau tidak tersedia)</small></div>`),
+ [['Tolak','btn-bad',set('Ditolak')],['Setuju','btn-primary',set('Diproses')]])}
+$('bell').onclick=()=>$('nl').classList.toggle('is-open');
+$('m').onclick=e=>{if(e.target===$('m'))closeM()};
+addEventListener('hashchange',view);view();
+</script></body></html>

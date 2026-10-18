@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Struk Pesanan — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.sw{max-width:420px;margin:1.5rem auto;padding:0 1rem}
+.struk{background:#fff;border:1px solid var(--line);border-radius:22px;padding:1.6rem;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.struk h1{font-size:1.2rem;text-align:center}.struk .sub{text-align:center;color:var(--muted);font-size:.8rem;margin-bottom:1rem}
+.struk hr{border:0;border-top:1px dashed var(--line);margin:.9rem 0}
+.r{display:flex;justify-content:space-between;gap:1rem;font-size:.88rem;padding:.15rem 0}
+.big{text-align:center;margin:.8rem 0}.big small{display:block;color:var(--muted);font-size:.75rem}.big b{font-size:2rem;letter-spacing:.08em;color:var(--blue-d)}
+.note{border-radius:14px;padding:.8rem 1rem;font-size:.85rem;margin-top:.9rem}
+.note--ok{background:#e1ecfd;color:var(--blue)}.note--wait{background:#fff4e5;color:var(--warn)}.note--bad{background:var(--red-soft);color:#8a1d25}
+.sact{display:flex;gap:.6rem;justify-content:center;margin-top:1rem}
+@media print{.sact{display:none}body{background:#fff}.struk{box-shadow:none}}
+</style></head>
+<body><main class="sw"><div class="struk" id="s"></div>
+<div class="sact"><a href="riwayat.html" class="btn btn-ghost">Riwayat</a><a href="index.html" class="btn btn-ghost">Etalase</a><button class="btn btn-primary" onclick="print()">Cetak</button></div></main>
+<script src="assets/js/bm.js"></script>
+<script>
+const x=BM.orders().find(o=>o.no===new URLSearchParams(location.search).get('no')),s=document.getElementById('s');
+const fmt=t=>new Date(t).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+function note(){
+ if(x.metode==='QR')return '<div class="note note--ok"><strong>✔ Sudah dibayar via QR.</strong><br>Pesanan diproses setelah verifikasi (jika ada resep).</div>';
+ if(x.status==='Hangus')return '<div class="note note--bad"><strong>Struk hangus.</strong><br>Melewati batas 24 jam tanpa pembayaran. Silakan buat pesanan baru.</div>';
+ if(/Lunas/.test(x.bayar))return '<div class="note note--ok"><strong>✔ Pembayaran COD sudah diterima.</strong></div>';
+ const ms=Math.max(0,x.exp-Date.now()),h=ms/36e5|0,m=ms/6e4%60|0,d=ms/1e3%60|0;
+ return `<div class="note note--wait"><strong>Bayar di tempat (COD).</strong> Tunjukkan struk ini ke kasir/kurir.<br>Berlaku sampai ${fmt(x.exp)}, sisa <b>${h}j ${m}m ${d}d</b>. Lewat dari itu pesanan hangus.</div>`}
+function draw(){
+ if(!x){s.innerHTML='<p class="empty" style="text-align:center">Struk tidak ditemukan.</p>';return}
+ BM.sweep();Object.assign(x,BM.orders().find(o=>o.no===x.no));
+ s.innerHTML=`<h1>Bintan Medika</h1><p class="sub">Apotik &amp; Toko Sehat · Struk Pesanan</p>
+ <div class="big"><small>${x.metode==='COD'?'No. Antrian':'Kode Struk'}</small><b>${x.metode==='COD'?x.antri:x.kode}</b>${x.metode==='COD'?'':''}</div>
+ <div class="r"><span>Kode unik</span><strong>${x.kode}</strong></div><div class="r"><span>No. Pesanan</span><span>${x.no}</span></div>
+ <div class="r"><span>Pembeli</span><span>${BM.esc(x.pembeli)}</span></div><div class="r"><span>Tanggal</span><span>${x.dibuat?fmt(x.dibuat):x.tgl}</span></div><hr>
+ ${x.items.map(i=>`<div class="r"><span>${BM.esc(i.nama)} ×${i.qty}</span><span>${BM.rp(i.harga*i.qty)}</span></div>`).join('')}
+ <div class="r"><span>Ongkir</span><span>${BM.rp(10000)}</span></div><hr>
+ <div class="r" style="font-weight:700"><span>Total</span><span>${BM.rp(x.total)}</span></div>
+ <div class="r"><span>Metode</span><span>${x.metode==='QR'?'QR':'COD'}</span></div>${note()}`}
+draw();if(x&&x.metode==='COD')setInterval(draw,1000);
+</script></body></html>

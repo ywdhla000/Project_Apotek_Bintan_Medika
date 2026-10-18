@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riwayat Pesanan — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/dashboard.css"><link rel="stylesheet" href="assets/css/app.css"></head>
+<body>
+<div class="bar"><a href="index.html" class="brand"><span class="brand__mark"><img src="assets/img/logo.png" alt=""></span><span class="brand__name">Bintan Medika</span></a>
+<nav><a href="index.html">Etalase</a><a href="keranjang.html">Keranjang</a><a href="login.html">Keluar</a></nav></div>
+<main class="wrap"><h1 style="margin-bottom:1rem">Riwayat Pesanan</h1>
+<section class="panel"><table class="ordertable"><thead><tr><th>No.</th><th>Tanggal</th><th>Item</th><th>Total</th><th>Pembayaran</th><th>Status</th><th>Struk</th></tr></thead><tbody id="tb"></tbody></table><p class="empty" id="em" hidden>Belum ada pesanan.</p></section></main>
+<script src="assets/js/bm.js"></script>
+<script>
+const o=BM.orders().filter(x=>x.pembeli===BM.user().name);
+document.getElementById('em').hidden=o.length>0;
+document.getElementById('tb').innerHTML=o.map(x=>`<tr><td>${x.no}</td><td>${x.tgl}</td><td>${x.items.map(i=>BM.esc(i.nama)+' ×'+i.qty).join(', ')}</td><td>${BM.rp(x.total)}</td><td>${x.bayar}</td><td>${BM.pill(x.status)}</td><td><a class="link link--strong" href="struk.html?no=${x.no}">Lihat</a></td></tr>`).join('');
+</script></body></html>

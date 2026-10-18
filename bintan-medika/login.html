@@ -14,37 +14,34 @@
   <section class="auth-hero">
     <div class="brand brand--on-dark">
       <span class="brand__mark" aria-hidden="true">
-        <img src="logo.jpg" alt="logo_bintan_medika">
+        <img src="assets/img/logo.png">
       </span>
       <span class="brand__name">Bintan Medika</span>
     </div>
 
-    <h1 class="auth-hero__title">Sehat itu urusan<br>sehari-hari.</h1>
-    <p class="auth-hero__sub">Masuk untuk pesan obat, pantau stok, atau kelola apotik — semua dalam satu tempat.</p>
+    <!-- FOTO: (opsional) ganti ilustrasi dengan foto apoteker + etalase obat Bintan Medika -->
+    <div class="auth-hero__illustration">
+      <img src="assets/img/apoteker.jpg" alt="Apoteker Bintan Medika">
+    </div>
+
+    <h1 class="auth-hero__title">Kelola Apotik &amp; Pasokan Obat Lebih Cepat</h1>
+    <p class="auth-hero__sub">Sistem terintegrasi untuk stok apotek, resep digital, dan pemesanan obat tanpa antre.</p>
 
     <ul class="auth-hero__list">
-      <li>Stok obat selalu diperbarui apoteker</li>
-      <li>Pesan tanpa antre, ambil di apotik</li>
-      <li>Riwayat pesanan tersimpan rapi</li>
+      <li>Stok obat selalu terpantau realtime</li>
+      <li>Verifikasi resep langsung oleh apoteker</li>
+      <li>Laporan pesanan &amp; supplier lengkap</li>
     </ul>
 
-    <p class="auth-hero__address">Jl. Contoh No. 12, Tanjungpinang, Kepulauan Riau</p>
     <span class="auth-hero__blob auth-hero__blob--1" aria-hidden="true"></span>
-    <span class="auth-hero__blob auth-hero__blob--2" aria-hidden="true"></span>
   </section>
 
   <section class="auth-form">
-    <div class="roletoggle" role="tablist" aria-label="Masuk sebagai">
-      <button class="roletoggle__btn is-active" data-role="pembeli" role="tab" aria-selected="true">Pembeli</button>
-      <button class="roletoggle__btn" data-role="admin" role="tab" aria-selected="false">Admin</button>
-    </div>
-
     <div class="authtabs" role="tablist" aria-label="Masuk atau daftar">
       <button class="authtabs__btn is-active" data-tab="masuk" role="tab" aria-selected="true">Masuk</button>
       <button class="authtabs__btn" data-tab="daftar" role="tab" aria-selected="false">Daftar</button>
     </div>
-]
-    <form id="formMasuk" class="authform" novalidate>
+    <form id="formMasuk" class="authform" action="index.html" method="get" novalidate>
       <label class="field">
         <span class="field__label">Email atau No. HP</span>
         <input type="text" name="identifier" placeholder="nama@email.com" required>
@@ -60,11 +57,13 @@
         </label>
         <a href="#" class="link">Lupa kata sandi?</a>
       </div>
-      <button type="submit" class="btn btn-primary auth-submit" id="submitMasuk">Masuk sebagai Pembeli</button>
+      <button type="submit" class="btn btn-primary auth-submit" id="submitMasuk">Masuk</button>
       <p class="authform__hint">
         Belum punya akun?
         <a href="#" class="link link--strong" data-goto="daftar">Daftar di sini</a>
-        — setelah masuk kamu akan diarahkan ke Etalase Obat
+      </p>
+      <p class="authform__hint" style="margin-top: 1.25rem; font-size: 0.8rem; color: #94a3b8;">
+        Staf apotik? <a href="admin_login.html" class="link">Portal Staf →</a>
       </p>
     </form>
     <form id="formDaftar" class="authform" novalidate hidden>
@@ -80,7 +79,7 @@
         <span class="field__label">Kata Sandi</span>
         <input type="password" name="password" placeholder="Minimal 8 karakter" required minlength="8">
       </label>
-      <button type="submit" class="btn btn-primary auth-submit" id="submitDaftar">Daftar sebagai Pembeli</button>
+      <button type="submit" class="btn btn-primary auth-submit" id="submitDaftar">Daftar</button>
       <p class="authform__hint">
         Sudah punya akun?
         <a href="#" class="link link--strong" data-goto="masuk">Masuk di sini</a>
@@ -92,6 +91,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="assets/js/bm.js"></script>
 <script src="assets/js/login.js"></script>
 </body>
 </html>
