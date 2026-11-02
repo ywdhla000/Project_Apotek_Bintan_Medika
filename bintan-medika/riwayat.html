@@ -11,5 +11,5 @@
 <script>
 const o=BM.orders().filter(x=>x.pembeli===BM.user().name);
 document.getElementById('em').hidden=o.length>0;
-document.getElementById('tb').innerHTML=o.map(x=>`<tr><td>${x.no}</td><td>${x.tgl}</td><td>${x.items.map(i=>BM.esc(i.nama)+' ×'+i.qty).join(', ')}</td><td>${BM.rp(x.total)}</td><td>${x.bayar}</td><td>${BM.pill(x.status)}</td><td><a class="link link--strong" href="struk.html?no=${x.no}">Lihat</a></td></tr>`).join('');
+document.getElementById('tb').innerHTML=o.map(x=>`<tr><td>${x.no}</td><td>${x.tgl}</td><td>${x.items.map(i=>BM.esc(i.nama)+' ×'+i.qty).join(', ')}</td><td>${BM.rp(x.total)}</td><td>${x.bayar}</td><td>${BM.pill(x.status)}</td><td><a class="link link--strong" href="struk.html?no=${x.no}">Lihat</a>${x.metode==='TF'&&(!x.bukti||x.bukti.state==='bad')?` · <a class="link link--strong" href="bukti_transfer.html?no=${x.no}">Upload bukti</a>`:''}</td></tr>`).join('');
 </script></body></html>

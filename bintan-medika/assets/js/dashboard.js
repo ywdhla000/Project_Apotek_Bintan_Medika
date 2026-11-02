@@ -10,4 +10,6 @@ const al=BM.alerts();
 g('bc').textContent=al.length;g('bc').hidden=!al.length;
 g('nl').innerHTML=al.length?al.map(x=>`<p>${BM.esc(x)}</p>`).join(''):'<p>Tidak ada peringatan.</p>';
 g('alertBox').innerHTML=al.length?`<div class="alertbox"><strong>${al.length} peringatan stok &amp; kadaluarsa:</strong> ${al.map(BM.esc).join(' · ')}</div>`:'';
+const pend=od.filter(o=>o.metode==='TF'&&o.bukti&&o.bukti.state==='wait').length;
+if(pend)g('alertBox').insertAdjacentHTML('beforeend',`<div class="alertbox"><strong>${pend} bukti transfer menunggu konfirmasi.</strong> <a class="link link--strong" href="konfirmasi_pembayaran.html">Periksa sekarang</a></div>`);
 g('bell').onclick=()=>g('nl').classList.toggle('is-open');

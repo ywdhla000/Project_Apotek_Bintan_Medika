@@ -16,16 +16,21 @@
 </style></head>
 <body><main class="sw"><div class="struk" id="s"></div>
 <div class="sact"><a href="riwayat.html" class="btn btn-ghost">Riwayat</a><a href="index.html" class="btn btn-ghost">Etalase</a><button class="btn btn-primary" onclick="print()">Cetak</button></div></main>
+<script src="assets/js/qrcode.js"></script>
 <script src="assets/js/bm.js"></script>
 <script>
 const x=BM.orders().find(o=>o.no===new URLSearchParams(location.search).get('no')),s=document.getElementById('s');
 const fmt=t=>new Date(t).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 function note(){
  if(x.metode==='QR')return '<div class="note note--ok"><strong>✔ Sudah dibayar via QR.</strong><br>Pesanan diproses setelah verifikasi (jika ada resep).</div>';
+ if(x.metode==='TF'){const b=x.bukti;
+  if(/Lunas/.test(x.bayar))return '<div class="note note--ok"><strong>✔ Transfer sudah dikonfirmasi.</strong></div>';
+  if(b&&b.state==='wait')return '<div class="note note--wait"><strong>Bukti transfer menunggu konfirmasi admin.</strong></div>';
+  return `<div class="note note--wait"><strong>Menunggu bukti transfer.</strong>${b&&b.state==='bad'?'<br>Bukti sebelumnya ditolak: '+BM.esc(b.alasan||''):''}<br><a class="link link--strong" href="bukti_transfer.html?no=${x.no}">Upload bukti transfer →</a></div>`}
  if(x.status==='Hangus')return '<div class="note note--bad"><strong>Struk hangus.</strong><br>Melewati batas 24 jam tanpa pembayaran. Silakan buat pesanan baru.</div>';
  if(/Lunas/.test(x.bayar))return '<div class="note note--ok"><strong>✔ Pembayaran COD sudah diterima.</strong></div>';
  const ms=Math.max(0,x.exp-Date.now()),h=ms/36e5|0,m=ms/6e4%60|0,d=ms/1e3%60|0;
- return `<div class="note note--wait"><strong>Bayar di tempat (COD).</strong> Tunjukkan struk ini ke kasir/kurir.<br>Berlaku sampai ${fmt(x.exp)}, sisa <b>${h}j ${m}m ${d}d</b>. Lewat dari itu pesanan hangus.</div>`}
+ return `<div class="note note--wait"><strong>Bayar di apotek (COD).</strong> Tunjukkan struk ini ke kasir saat mengambil obat.<br>Berlaku sampai ${fmt(x.exp)}, sisa <b>${h}j ${m}m ${d}d</b>. Lewat dari itu pesanan hangus.</div>`}
 function draw(){
  if(!x){s.innerHTML='<p class="empty" style="text-align:center">Struk tidak ditemukan.</p>';return}
  BM.sweep();Object.assign(x,BM.orders().find(o=>o.no===x.no));
@@ -34,8 +39,11 @@ function draw(){
  <div class="r"><span>Kode unik</span><strong>${x.kode}</strong></div><div class="r"><span>No. Pesanan</span><span>${x.no}</span></div>
  <div class="r"><span>Pembeli</span><span>${BM.esc(x.pembeli)}</span></div><div class="r"><span>Tanggal</span><span>${x.dibuat?fmt(x.dibuat):x.tgl}</span></div><hr>
  ${x.items.map(i=>`<div class="r"><span>${BM.esc(i.nama)} ×${i.qty}</span><span>${BM.rp(i.harga*i.qty)}</span></div>`).join('')}
- <div class="r"><span>Ongkir</span><span>${BM.rp(10000)}</span></div><hr>
+ <hr>
  <div class="r" style="font-weight:700"><span>Total</span><span>${BM.rp(x.total)}</span></div>
- <div class="r"><span>Metode</span><span>${x.metode==='QR'?'QR':'COD'}</span></div>${note()}`}
+ <div class="r"><span>Metode</span><span>${x.metode==='QR'?'QR':x.metode==='TF'?'Transfer bank':'COD'}</span></div>${note()}${x.status==='Siap Diambil'?'<div class="note note--ok"><strong>Pesanan siap diambil di apotek.</strong> Tunjukkan QR ini ke apoteker.</div>':''}
+ <div id="qrz" style="text-align:center;margin-top:1rem"></div>`;renderQR()}
+function renderQR(){const el=document.getElementById('qrz');if(!el||!window.qrcode||!x)return;const q=qrcode(0,'M');q.addData(x.no);q.make();
+ el.innerHTML='<img src="'+q.createDataURL(5,0)+'" width="140" height="140" alt="QR pesanan '+x.no+'" style="image-rendering:pixelated"><small style="display:block;color:var(--muted);font-size:.75rem;margin-top:.3rem">Tunjukkan QR ini ke apoteker saat mengambil obat</small>'}
 draw();if(x&&x.metode==='COD')setInterval(draw,1000);
 </script></body></html>

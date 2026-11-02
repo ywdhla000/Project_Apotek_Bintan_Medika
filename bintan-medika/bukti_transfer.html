@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload Bukti Transfer — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/app.css"><link rel="stylesheet" href="assets/css/pembayaran.css">
+</head>
+<body>
+<div class="bar"><a href="index.html" class="brand"><span class="brand__mark"><img src="assets/img/logo.png" alt=""></span><span class="brand__name">Bintan Medika</span></a>
+<nav><a href="index.html">Etalase</a><a href="riwayat.html">Riwayat</a><a href="login.html" id="logout">Keluar</a></nav></div>
+<main class="wrap" id="root"><h1 style="margin-bottom:1rem">Upload Bukti Transfer</h1><div id="app"></div></main>
+<div class="toast" id="toast"></div>
+<script src="assets/js/bm.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const BANK={nama:'Bank BRI',norek:'0000 0000 0000 000',an:'Apotek Bintan Medika'}; // GANTI dengan rekening asli apotek
+const fmt=t=>new Date(t).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+const no=new URLSearchParams(location.search).get('no');
+let draft=null; // {name,data}
+
+function find(){const L=BM.orders();
+ const x=no?L.find(o=>o.no===no&&o.metode==='TF'):L.find(o=>o.pembeli===BM.user().name&&o.metode==='TF'&&(!o.bukti||o.bukti.state==='bad'));
+ return{L,x}}
+
+function timeline(x){const s=x.bukti?x.bukti.state:'none';
+ const st=[['Upload bukti transfer',s==='none'||s==='bad'?'now':'done',s==='wait'||s==='ok'?'Terkirim '+fmt(x.bukti.tgl):'Pilih foto bukti di bawah'],
+  ['Admin memeriksa pembayaran',s==='wait'?'now':s==='ok'?'done':'','Biasanya selesai dalam beberapa jam'],
+  ['Pesanan diproses',s==='ok'?'done':'',s==='ok'?'Pembayaran dikonfirmasi':'Setelah pembayaran dikonfirmasi']];
+ return `<ol class="steps">${st.map((a,i)=>`<li class="${a[1]}"><i>${a[1]==='done'?'✓':i+1}</i><span>${a[0]}<small>${a[2]}</small></span></li>`).join('')}</ol>`}
+
+function render(){const{x}=find(),app=$('app');
+ if(!x){app.innerHTML=`<section class="bx"><p class="empty">Tidak ada pesanan transfer yang menunggu bukti pembayaran. <a class="link link--strong" href="riwayat.html">Lihat riwayat pesanan</a></p></section>`;return}
+ const b=x.bukti,state=b?b.state:'none',canUpload=state==='none'||state==='bad';
+ let alert='';
+ if(state==='bad')alert=`<div class="alert alert--bad"><strong>Bukti transfer ditolak.</strong><br>${BM.esc(b.alasan||'Bukti tidak sesuai.')} Silakan unggah ulang.</div>`;
+ if(state==='wait')alert=`<div class="alert alert--wait"><strong>Menunggu konfirmasi admin.</strong><br>Bukti transfer sudah kami terima. Anda akan melihat status terbarunya di riwayat pesanan.</div>`;
+ if(state==='ok')alert=`<div class="alert alert--ok"><strong>Pembayaran dikonfirmasi.</strong><br>Pesanan Anda sedang diproses${x.resep?' setelah resep diverifikasi apoteker':''}.</div>`;
+ app.innerHTML=`<div class="cols">
+ <section class="bx"><h2>Detail Pembayaran</h2>
+  <div class="sum"><span>No. Pesanan</span><span>${x.no}</span></div>
+  <div class="sum"><span>Pembeli</span><span>${BM.esc(x.pembeli)}</span></div>
+  <div class="sum sum--t"><span>Total transfer</span><span class="total">${BM.rp(x.total)}</span></div>
+  <div class="bank"><small>Transfer ke ${BANK.nama}</small><strong id="rek">${BANK.norek}</strong><small>a.n. ${BANK.an}</small>
+   <button class="btn btn-ghost btn-sm copy" id="cp" type="button">Salin nomor rekening</button></div>
+  <p style="font-size:.82rem;color:var(--muted)">Transfer sesuai nominal total agar pembayaran cepat dikonfirmasi.</p>
+  ${timeline(x)}
+ </section>
+ <section class="bx"><h2>Bukti Transfer</h2>${alert}
+  ${canUpload?`
+  <label class="field"><span class="field__label">Nama pemilik rekening pengirim</span><input id="pengirim" type="text" placeholder="Sesuai nama di rekening" value="${BM.esc(x.bukti&&x.bukti.pengirim||'')}"></label>
+  <label class="field"><span class="field__label">Bank asal</span><select id="bankAsal"><option>BRI</option><option>BCA</option><option>BNI</option><option>Mandiri</option><option>BSI</option><option>Dompet digital</option><option>Lainnya</option></select></label>
+  <label class="drop" id="drop"><input type="file" id="f" accept="image/*"><b>Pilih foto bukti transfer</b>JPG atau PNG, maksimal 5 MB. Bisa juga tarik file ke sini.</label>
+  <div id="pv"></div><p class="err" id="err" role="alert"></p>
+  <button class="btn btn-primary btn-block" id="kirim" type="button">Kirim bukti transfer</button>`
+  :`${b&&b.data?`<img class="preview preview--fit" src="${b.data}" alt="Bukti transfer">`:`<div class="noimg">${BM.esc(b?b.name:'')}</div>`}
+  <p style="font-size:.85rem;color:var(--muted);margin-top:.6rem">Pengirim: ${BM.esc(b.pengirim||'-')} · ${BM.esc(b.bank||'-')}</p>
+  <div style="display:flex;gap:.6rem;margin-top:1rem"><a class="btn btn-primary" href="struk.html?no=${x.no}">Lihat struk</a><a class="btn btn-ghost" href="riwayat.html">Riwayat</a></div>`}
+ </section></div>`;
+ $('cp').onclick=()=>{const t=BANK.norek.replace(/\s/g,'');(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>BM.toast('Nomor rekening disalin'),()=>BM.toast('Salin manual: '+t))};
+ if(canUpload)bind(x)}
+
+function shrink(file){return new Promise(res=>{const u=URL.createObjectURL(file),im=new Image();
+ im.onload=()=>{const k=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.7))};
+ im.onerror=()=>{URL.revokeObjectURL(u);res('')};im.src=u})}
+
+async function pick(file){const err=$('err');err.textContent='';draft=null;$('pv').innerHTML='';
+ if(!file)return;
+ if(!file.type.startsWith('image/')){err.textContent='File harus berupa gambar (JPG atau PNG).';return}
+ if(file.size>5*1024*1024){err.textContent='Ukuran file lebih dari 5 MB. Pilih foto yang lebih kecil.';return}
+ const data=await shrink(file);
+ if(!data){err.textContent='Gambar tidak bisa dibaca. Coba foto lain.';return}
+ draft={name:file.name,data};
+ $('pv').innerHTML=`<div class="pvwrap"><img class="preview" src="${data}" alt="Pratinjau bukti transfer"><button type="button" class="btn btn-ghost btn-sm" id="rm">Ganti</button></div>`;
+ $('rm').onclick=()=>{draft=null;$('pv').innerHTML='';$('f').value=''}}
+
+function bind(x){const drop=$('drop');
+ $('f').onchange=e=>pick(e.target.files[0]);
+ ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('is-over')}));
+ ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('is-over')}));
+ drop.addEventListener('drop',e=>pick(e.dataTransfer.files[0]));
+ $('kirim').onclick=()=>{const err=$('err'),p=$('pengirim').value.trim();
+  if(!p){err.textContent='Isi nama pemilik rekening pengirim.';$('pengirim').focus();return}
+  if(!draft){err.textContent='Pilih foto bukti transfer dulu.';return}
+  const L=BM.orders(),o=L.find(z=>z.no===x.no);
+  o.bukti={name:draft.name,data:draft.data,pengirim:p,bank:$('bankAsal').value,tgl:Date.now(),state:'wait'};
+  o.bayar='Transfer - Menunggu Konfirmasi';BM.set('bm_orders',L);
+  const saved=BM.orders().find(z=>z.no===x.no);
+  if(!saved||!saved.bukti){err.textContent='Bukti gagal disimpan (penyimpanan browser penuh). Coba foto yang lebih kecil.';return}
+  BM.toast('Bukti transfer terkirim');draft=null;render()}}
+render();
+</script></body></html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scan QR Pesanan — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/dashboard.css"><link rel="stylesheet" href="assets/css/app.css"><link rel="stylesheet" href="assets/css/pembayaran.css">
+</head>
+<body><div class="dash">
+<aside class="sidebar">
+<div class="brand brand--on-dark sidebar__brand"><span class="brand__mark"><img src="assets/img/logo.png" alt=""></span><span><span class="brand__name" style="display:block">Bintan Medika</span><span class="brand__tag" style="display:block;color:rgba(255,255,255,.55)">PANEL ADMIN</span></span></div>
+<p class="sidebar__section">Menu Utama</p>
+<nav class="sidebar__nav">
+<a href="dashboard.html" class="sidebar__link">Ringkasan</a>
+<a href="admin.html#obat" class="sidebar__link">Data Obat</a>
+<a href="admin.html#supplier" class="sidebar__link">Data Supplier</a>
+<a href="admin.html#pesanan" class="sidebar__link">Pesanan</a>
+<a href="konfirmasi_pembayaran.html" class="sidebar__link">Konfirmasi Bayar</a>
+<a href="scan_qr.html" class="sidebar__link is-active">Scan QR</a></nav>
+<a href="login.html" class="logout" id="logout">⎋ Keluar</a>
+</aside>
+<div class="dash__main">
+<header class="dash__header"><div><h1 class="dash__title">Scan QR Pesanan</h1><p class="dash__date">Arahkan kamera ke QR di struk pembeli saat mengambil obat.</p></div></header>
+<div class="sgrid">
+<section class="panel">
+ <div class="panel__head"><h2 class="panel__title">Kamera</h2><span class="pill pill--idle" id="cs">Kamera mati</span></div>
+ <div class="vf" id="vf">
+  <video id="vid" playsinline muted></video>
+  <div class="vf__frame"><i></i><i></i><i></i><i></i><span class="vf__line"></span></div>
+  <div class="vf__idle"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="8" y="8" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg><span>Tekan “Nyalakan kamera” untuk mulai memindai.</span></div>
+ </div>
+ <div class="ctrl"><button class="btn btn-primary" id="go" type="button">Nyalakan kamera</button><button class="btn btn-ghost" id="stop" type="button" hidden>Matikan kamera</button><button class="btn btn-ghost" id="flip" type="button" hidden>Ganti kamera</button></div>
+ <p class="msg" id="msg" role="status" aria-live="polite">Kamera butuh izin browser dan koneksi aman (HTTPS atau localhost).</p>
+ <div class="or">atau</div>
+ <label class="field"><span class="field__label">Ketik nomor pesanan atau kode struk</span>
+  <div class="mrow"><input id="manual" list="dl" placeholder="BM-0001" autocomplete="off"><button class="btn btn-ghost" id="cari" type="button">Cari</button></div></label>
+ <datalist id="dl"></datalist>
+ <label class="btn btn-ghost btn-block" style="cursor:pointer;margin-top:.4rem">Pindai dari foto QR<input type="file" id="img" accept="image/*" hidden></label>
+</section>
+
+<section class="panel" id="res" aria-live="polite"><p class="placeholder">Hasil pemindaian akan tampil di sini.</p></section>
+</div>
+<section class="panel" style="margin-top:1.2rem"><h2 class="panel__title">Pemindaian terakhir</h2><ul class="hist" id="hist"><li><small>Belum ada pemindaian pada sesi ini.</small></li></ul></section>
+</div></div>
+<canvas id="cv" hidden></canvas>
+<div class="toast" id="toast"></div>
+<script src="assets/js/bm.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const fmtT=t=>new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+const NEXT={Diproses:'Siap Diambil','Siap Diambil':'Selesai'};
+let stream=null,timer=0,det=null,busy=false,last={t:'',at:0},facing='environment',hist=[];
+
+function say(t,bad){$('msg').textContent=t;$('msg').classList.toggle('bad',!!bad)}
+function chip(on){$('cs').textContent=on?'Kamera aktif':'Kamera mati';$('cs').className='pill '+(on?'pill--ok':'pill--idle')}
+
+/* ---------- pencarian pesanan dari isi QR ---------- */
+function norm(s){s=String(s||'').trim();try{const u=new URL(s);const n=u.searchParams.get('no');if(n)s=n}catch(e){}return s.toUpperCase()}
+function findOrder(txt){const t=norm(txt);if(!t)return null;return BM.orders().find(o=>[o.no,o.kode,o.antri].some(v=>v&&String(v).toUpperCase()===t))||null}
+
+/* ---------- kamera ---------- */
+async function loadJsQR(){if(window.jsQR)return true;
+ return new Promise(r=>{const s=document.createElement('script');s.src='assets/js/jsQR.js';s.onload=()=>r(true);s.onerror=()=>r(false);document.head.append(s)})}
+async function prepDecoder(){if('BarcodeDetector' in window){try{det=new BarcodeDetector({formats:['qr_code']});return true}catch(e){}}
+ return loadJsQR()}
+async function decode(src,w,h){
+ if(det){const r=await det.detect(src);return r[0]?r[0].rawValue:''}
+ if(window.jsQR){const c=$('cv'),x=c.getContext('2d',{willReadFrequently:true});c.width=w;c.height=h;x.drawImage(src,0,0,w,h);const d=x.getImageData(0,0,w,h),q=jsQR(d.data,w,h);return q?q.data:''}
+ return ''}
+
+async function start(){
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return say('Browser ini tidak mendukung kamera. Gunakan input manual atau foto QR.',true);
+ say('Meminta izin kamera…');
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing}},audio:false})}
+ catch(e){const m={NotAllowedError:'Izin kamera ditolak. Aktifkan izin kamera di pengaturan browser, lalu coba lagi.',NotFoundError:'Kamera tidak ditemukan di perangkat ini.',NotReadableError:'Kamera sedang dipakai aplikasi lain. Tutup aplikasi itu, lalu coba lagi.'};
+  return say(m[e.name]||'Kamera tidak bisa dibuka. Pastikan halaman dibuka lewat HTTPS atau localhost.',true)}
+ const v=$('vid');v.srcObject=stream;await v.play().catch(()=>{});
+ if(!await prepDecoder()){say('Pemindai belum siap (butuh internet untuk memuat pustaka). Gunakan input manual.',true)}
+ $('vf').classList.add('on');$('go').hidden=true;$('stop').hidden=false;$('flip').hidden=false;chip(true);say('Arahkan QR ke dalam bingkai.');
+ tick()}
+
+function stop(){clearTimeout(timer);timer=0;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+ $('vid').srcObject=null;$('vf').classList.remove('on');$('go').hidden=false;$('stop').hidden=true;$('flip').hidden=true;chip(false)}
+
+async function tick(){if(!stream)return;const v=$('vid');
+ if(v.readyState>=2&&!busy&&(det||window.jsQR)){busy=true;let txt='';try{txt=await decode(v,v.videoWidth,v.videoHeight)}catch(e){}busy=false;
+  if(txt&&!(txt===last.t&&Date.now()-last.at<2500)){last={t:txt,at:Date.now()};if(handle(txt,'kamera'))return}}
+ timer=setTimeout(tick,200)}
+
+$('go').onclick=start;$('stop').onclick=()=>{stop();say('Kamera dimatikan.')};
+$('flip').onclick=()=>{facing=facing==='environment'?'user':'environment';stop();start()};
+addEventListener('pagehide',stop);
+
+/* ---------- input manual & foto ---------- */
+$('cari').onclick=()=>{const t=$('manual').value;if(!t.trim())return say('Ketik nomor pesanan dulu.',true);handle(t,'manual')};
+$('manual').onkeydown=e=>{if(e.key==='Enter')$('cari').click()};
+$('img').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+ if(!await prepDecoder())return say('Pemindai belum siap. Cek koneksi internet.',true);
+ try{const bm=await createImageBitmap(f);const t=await decode(bm,bm.width,bm.height);t?handle(t,'foto'):say('QR tidak terbaca di foto ini. Coba foto yang lebih jelas.',true)}
+ catch(err){say('Foto tidak bisa dibaca.',true)}};
+
+/* ---------- hasil ---------- */
+function handle(txt,via){const x=findOrder(txt);
+ if(!x){say(via==='manual'?'Nomor pesanan tidak ditemukan: '+String(txt).slice(0,40):'QR terbaca, tetapi tidak cocok dengan pesanan mana pun.',true);showNone(txt,via);return false}
+ if(stream)stop();say('Pesanan '+x.no+' ditemukan.');
+ hist.unshift({no:x.no,at:Date.now(),via});hist=hist.slice(0,6);drawHist();show(x.no);return true}
+
+function stBadge(s){const c=/Menunggu|Siap Diambil|Diproses/.test(s)?'pill--wait':/Selesai/.test(s)?'pill--ok':/Ditolak|Hangus/.test(s)?'pill--bad':'pill--idle';return `<span class="pill ${c}">${BM.esc(s)}</span>`}
+
+function showNone(t,via){$('res').innerHTML=`<div class="rnote rnote--bad"><strong>Pesanan tidak ditemukan.</strong><br>${via==='manual'?'Yang dicari':'Isi QR'}: ${BM.esc(String(t).slice(0,60))}<br>${via==='manual'?'Periksa ejaan nomor pesanan, lalu coba lagi.':'Pastikan struk berasal dari Bintan Medika, lalu pindai ulang.'}</div>`}
+
+function show(no){const x=BM.orders().find(o=>o.no===no);if(!x)return;
+ const cod=x.metode==='COD',lunas=/Lunas/.test(x.bayar);let note='',acts='';
+ if(x.status==='Menunggu Verifikasi')note=`<div class="rnote rnote--wait"><strong>Resep belum diverifikasi.</strong> Verifikasi resep di halaman Pesanan sebelum pesanan diserahkan.</div>`,acts=`<a class="btn btn-primary" href="admin.html#pesanan">Buka halaman Pesanan</a>`;
+ else if(x.status==='Menunggu Pembayaran')note=`<div class="rnote rnote--wait"><strong>Pembayaran transfer belum dikonfirmasi.</strong></div>`,acts=`<a class="btn btn-primary" href="konfirmasi_pembayaran.html">Buka Konfirmasi Pembayaran</a>`;
+ else if(x.status==='Hangus'||x.status==='Ditolak')note=`<div class="rnote rnote--bad"><strong>Pesanan ${x.status.toLowerCase()}.</strong> Tidak bisa diserahkan.</div>`;
+ else if(x.status==='Selesai')note=`<div class="rnote rnote--ok"><strong>✔ Pesanan sudah selesai.</strong></div>`;
+ else{ if(cod&&!lunas)note=`<div class="rnote rnote--wait"><strong>COD belum dibayar.</strong> Terima pembayaran ${BM.rp(x.total)} saat obat diambil.</div>`,acts+=`<button class="btn btn-primary" data-a="bayar">Terima bayaran</button>`;
+  if(NEXT[x.status])acts+=`<button class="btn ${cod&&!lunas?'btn-ghost':'btn-primary'}" data-a="next">Tandai ${NEXT[x.status]}</button>`}
+ $('res').innerHTML=`<div class="panel__head"><h2 class="panel__title">${x.no}</h2>${stBadge(x.status)}</div>
+ <dl class="kv"><dt>Pembeli</dt><dd>${BM.esc(x.pembeli)}</dd><dt>Item</dt><dd>${x.items.map(i=>BM.esc(i.nama)+' ×'+i.qty).join(', ')}</dd>
+ <dt>Total</dt><dd><strong>${BM.rp(x.total)}</strong></dd><dt>Pembayaran</dt><dd>${BM.esc(x.bayar)}</dd></dl>
+ ${note}<div class="racts">${acts}<button class="btn btn-ghost" data-a="again">Scan lagi</button></div>`;
+ $('res').onclick=e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+  if(a==='again'){$('res').innerHTML='<p class="placeholder">Hasil pemindaian akan tampil di sini.</p>';$('manual').value='';return start()}
+  const L=BM.orders(),o=L.find(z=>z.no===no);
+  if(a==='bayar'){o.bayar='COD - Lunas';BM.toast('Pembayaran dicatat')}
+  if(a==='next'){o.status=NEXT[o.status];if(o.status==='Selesai'&&o.metode==='COD')o.bayar='COD - Lunas';BM.toast('Status diperbarui: '+o.status)}
+  BM.set('bm_orders',L);show(no)}}
+
+function drawHist(){$('hist').innerHTML=hist.length?hist.map(h=>`<li><span>${h.no} <small>via ${h.via}</small></span><small>${fmtT(h.at)}</small></li>`).join(''):'<li><small>Belum ada pemindaian pada sesi ini.</small></li>'}
+$('dl').innerHTML=BM.orders().filter(o=>!/Selesai|Hangus|Ditolak/.test(o.status)).map(o=>`<option value="${o.no}">${BM.esc(o.pembeli)}</option>`).join('');
+</script></body></html>

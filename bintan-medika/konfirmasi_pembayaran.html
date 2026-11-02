@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konfirmasi Pembayaran — Bintan Medika</title>
+<link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/dashboard.css"><link rel="stylesheet" href="assets/css/app.css"><link rel="stylesheet" href="assets/css/pembayaran.css">
+</head>
+<body><div class="dash">
+<aside class="sidebar">
+<div class="brand brand--on-dark sidebar__brand"><span class="brand__mark"><img src="assets/img/logo.png" alt=""></span><span><span class="brand__name" style="display:block">Bintan Medika</span><span class="brand__tag" style="display:block;color:rgba(255,255,255,.55)">PANEL ADMIN</span></span></div>
+<p class="sidebar__section">Menu Utama</p>
+<nav class="sidebar__nav">
+<a href="dashboard.html" class="sidebar__link">Ringkasan</a>
+<a href="admin.html#obat" class="sidebar__link">Data Obat</a>
+<a href="admin.html#supplier" class="sidebar__link">Data Supplier</a>
+<a href="admin.html#pesanan" class="sidebar__link">Pesanan</a>
+<a href="konfirmasi_pembayaran.html" class="sidebar__link is-active">Konfirmasi Bayar</a>
+<a href="scan_qr.html" class="sidebar__link">Scan QR</a></nav>
+<a href="login.html" class="logout" id="logout">⎋ Keluar</a>
+</aside>
+<div class="dash__main">
+<header class="dash__header"><div><h1 class="dash__title">Konfirmasi Pembayaran</h1><p class="dash__date">Periksa bukti transfer pembeli sebelum pesanan diproses.</p></div></header>
+<section class="panel">
+<div class="tabs" id="tabs" role="tablist"></div>
+<div style="overflow-x:auto"><table class="ordertable"><thead><tr><th>No.</th><th>Pembeli</th><th>Total</th><th>Diunggah</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tb"></tbody></table></div>
+</section></div></div>
+
+<div class="modal" id="m"><div class="modal__box"><h3 id="mt"></h3><div id="mb"></div><div class="modal__act" id="ma"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="assets/js/bm.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=t=>t?new Date(t).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'-';
+const ST={wait:['Menunggu','pill--wait'],ok:['Dikonfirmasi','pill--ok'],bad:['Ditolak','pill--bad'],none:['Belum upload','pill--none']};
+const stateOf=x=>x.bukti?x.bukti.state:'none';
+const TABS=[['wait','Menunggu konfirmasi'],['ok','Dikonfirmasi'],['bad','Ditolak'],['none','Belum upload']];
+let tab='wait';
+
+function render(){const all=BM.orders().filter(o=>o.metode==='TF');
+ $('tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${k===tab}" class="${k===tab?'is-active':''}" data-t="${k}">${l}<b>${all.filter(o=>stateOf(o)===k).length}</b></button>`).join('');
+ const rows=all.filter(o=>stateOf(o)===tab);
+ $('tb').innerHTML=rows.length?rows.map(x=>{const s=stateOf(x);
+  return `<tr><td>${x.no}</td><td>${BM.esc(x.pembeli)}</td><td>${BM.rp(x.total)}</td><td>${x.bukti?fmt(x.bukti.tgl):'-'}</td>
+  <td><span class="pill ${ST[s][1]}">${ST[s][0]}</span></td>
+  <td class="acts">${s==='none'?'<small>Menunggu pembeli</small>':`<button class="btn ${s==='wait'?'btn-primary':'btn-ghost'} btn-sm" data-o="${x.no}">${s==='wait'?'Periksa':'Lihat'}</button>`}</td></tr>`}).join('')
+  :`<tr class="empty-row"><td colspan="6">${{wait:'Tidak ada bukti transfer yang menunggu konfirmasi.',ok:'Belum ada pembayaran yang dikonfirmasi.',bad:'Tidak ada bukti yang ditolak.',none:'Semua pesanan transfer sudah punya bukti.'}[tab]}</td></tr>`}
+
+$('tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;render()}};
+$('tb').onclick=e=>{const b=e.target.closest('[data-o]');if(b)detail(b.dataset.o)};
+
+function openM(t,body,acts){$('mt').textContent=t;$('mb').innerHTML=body;$('ma').innerHTML='';
+ acts.forEach(([l,cls,fn])=>{const b=document.createElement('button');b.className='btn '+cls;b.textContent=l;b.onclick=fn;$('ma').append(b)});$('m').classList.add('is-open')}
+const closeM=()=>$('m').classList.remove('is-open');
+
+function detail(no){const L=BM.orders(),x=L.find(o=>o.no===no),b=x.bukti,s=stateOf(x);
+ const img=b.data?`<img class="preview preview--fit" src="${b.data}" alt="Bukti transfer ${x.no}">`:`<div class="noimg">${BM.esc(b.name)}<br><small>(pratinjau tidak tersedia)</small></div>`;
+ const info=`<dl class="kv"><dt>Pembeli</dt><dd>${BM.esc(x.pembeli)}</dd><dt>Total tagihan</dt><dd><strong>${BM.rp(x.total)}</strong></dd>
+  <dt>Pengirim</dt><dd>${BM.esc(b.pengirim||'-')} (${BM.esc(b.bank||'-')})</dd><dt>Diunggah</dt><dd>${fmt(b.tgl)}</dd>
+  <dt>Item</dt><dd>${x.items.map(i=>BM.esc(i.nama)+' ×'+i.qty).join(', ')}</dd>${x.resep?'<dt>Resep</dt><dd>Perlu verifikasi apoteker setelah dibayar</dd>':''}
+  ${s==='bad'?`<dt>Alasan ditolak</dt><dd>${BM.esc(b.alasan||'-')}</dd>`:''}</dl>`;
+ if(s!=='wait')return openM('Bukti Transfer '+x.no,img+info,[['Tutup','btn-ghost',closeM]]);
+ openM('Periksa Bukti '+x.no,img+info+`<label class="field"><span class="field__label">Alasan (wajib jika ditolak)</span><textarea id="alasan" rows="2" placeholder="Contoh: nominal tidak sesuai"></textarea></label>`,
+ [['Tolak','btn-bad',()=>decide(no,false)],['Konfirmasi pembayaran','btn-primary',()=>decide(no,true)]])}
+
+function decide(no,ok){const L=BM.orders(),x=L.find(o=>o.no===no);
+ if(!ok){const a=$('alasan').value.trim();if(!a)return BM.toast('Isi alasan penolakan');
+  x.bukti.state='bad';x.bukti.alasan=a;x.bayar='Transfer - Bukti ditolak'}
+ else{x.bukti.state='ok';x.bukti.dikonfirmasi=Date.now();x.bayar='Transfer - Lunas';x.status=x.resep?'Menunggu Verifikasi':'Diproses'}
+ BM.set('bm_orders',L);closeM();BM.toast(ok?'Pembayaran dikonfirmasi':'Bukti ditolak, pembeli diminta unggah ulang');
+ tab=ok?'ok':'bad';render()}
+
+$('m').onclick=e=>{if(e.target===$('m'))closeM()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+render();
+</script></body></html>
